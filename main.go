@@ -10,6 +10,7 @@ import (
 
 var (
 	wg sync.WaitGroup
+	mu sync.Mutex
 )
 
 func main() {
@@ -30,9 +31,12 @@ func performGettextCheck(filename string) {
 	}
 	translations := parseTranslation(string(file))
 	ctx := NewContext(filename, translations)
-	for k, v := range ctx.Run() {
+	errors := ctx.Run()
+	mu.Lock()
+	for k, v := range errors {
 		fmt.Println(k + " => " + v)
 	}
+	mu.Unlock()
 }
 
 func parseTranslation(file string) (output []string) {
